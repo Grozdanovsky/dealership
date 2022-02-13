@@ -33,21 +33,24 @@ def user_list(request):
         serializer = UserSerializer(queryset,many=True)
         return Response(serializer.data)
     elif request.method == "POST":
+
         if len(request.data['vehicle'])> 0:
             for vehicle_id in request.data['vehicle']:
                 vehicle = Vehicle.objects.get(id = vehicle_id)
                 vehicle_serializer = VehcileSerializer(vehicle)
                 if vehicle_serializer.data['quantity'] > 0:
-                    quantity = vehicle_serializer.data['quantity']
-                    quantity -=1
-                    vehicle_serializer.data['quantity'] = quantity
-                    pprint(vehicle_serializer.data['quantity'])
 
-        
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
+                    new_quantity = vehicle_serializer.data['quantity']
+                    new_quantity -=1
+                    
+                    vehicle_serializer = VehcileSerializer(data=request.data)
+                    vehicle_serializer.is_valid(raise_exception=True)
+                    vehicle_serializer.save()
+                    
+            serializer = UserSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
 
 @api_view(['GET','PUT','DELETE'])
 def user_detail(request,pk):

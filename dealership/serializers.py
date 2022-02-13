@@ -1,4 +1,5 @@
 from re import search
+from turtle import update
 from rest_framework import serializers
 from .models import *
 
@@ -16,10 +17,10 @@ class VehcileSerializer(serializers.ModelSerializer):
         model = Vehicle
         fields = ['id','type','manufacturer','model','horsepower','cubic_meters','color','year','price','quantity']
 
+    
+
 
 class UserSerializer(serializers.ModelSerializer):
-
-    
 
     class Meta:
         model = User
