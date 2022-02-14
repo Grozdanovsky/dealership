@@ -20,7 +20,6 @@ class Vehicle(models.Model):
     price = models.PositiveBigIntegerField()
     quantity = models.PositiveIntegerField()
 
-
     
 
 class User(models.Model):
