@@ -1,4 +1,3 @@
-from signal import raise_signal
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -11,9 +10,6 @@ from dealership.pagination import DefaultPagination
 from dealership.serializers import TypeSerializer, UserSerializer, VehcileSerializer
 from dealership.filters import VehicleFilter
 from rest_framework.decorators import api_view
-from pprint import pp, pprint
-
-
 
 class VehicleViewSet(ModelViewSet):
     queryset = Vehicle.objects.prefetch_related('type').all()
@@ -38,7 +34,7 @@ def user_list(request):
     elif request.method == "POST":
 
         try:
-
+            
             for vehicle_id in request.data['vehicle']:
                 vehicle = Vehicle.objects.get(id = vehicle_id)
                 vehicle.quantity -= 1
@@ -51,6 +47,7 @@ def user_list(request):
 
         except IntegrityError:
             return Response({'error': 'This vehicle is no longer available we are sorry.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 
 @api_view(['GET','PUT','DELETE'])
