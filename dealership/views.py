@@ -1,3 +1,5 @@
+from signal import raise_signal
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -26,6 +28,7 @@ class TypeViewSet(ModelViewSet):
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
 
+
 @api_view(['GET','POST'])
 def user_list(request):
     if request.method == "GET":
@@ -33,21 +36,22 @@ def user_list(request):
         serializer = UserSerializer(queryset,many=True)
         return Response(serializer.data)
     elif request.method == "POST":
-        if len(request.data['vehicle'])> 0:
+
+        try:
+
             for vehicle_id in request.data['vehicle']:
                 vehicle = Vehicle.objects.get(id = vehicle_id)
-                vehicle_serializer = VehcileSerializer(vehicle)
-                if vehicle_serializer.data['quantity'] > 0:
-                    quantity = vehicle_serializer.data['quantity']
-                    quantity -=1
-                    vehicle_serializer.data['quantity'] = quantity
-                    pprint(vehicle_serializer.data['quantity'])
+                vehicle.quantity -= 1
+                vehicle.save()
+               
+            serializer = UserSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-        
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': 'This vehicle is no longer available we are sorry.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 @api_view(['GET','PUT','DELETE'])
 def user_detail(request,pk):
