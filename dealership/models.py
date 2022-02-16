@@ -8,9 +8,14 @@ class Type(models.Model):
     def __str__(self) -> str:
         return self.type
 
+class Company(models.Model):
+    company_name = models.CharField(max_length=255)
+    CEO = models.CharField(max_length=255)
+    revenue = models.IntegerField(default=0)
 class Vehicle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     manufacturer = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
     horsepower = models.IntegerField()
@@ -21,9 +26,13 @@ class Vehicle(models.Model):
     quantity = models.PositiveIntegerField()
 
     
+    
 
 class User(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField()
     vehicle = models.ManyToManyField(Vehicle, blank=True)
+
+
+

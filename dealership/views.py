@@ -9,10 +9,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
-from dealership.models import Vehicle, Type,User
-from dealership.pagination import DefaultPagination
-from dealership.serializers import TypeSerializer, UserSerializer, VehcileSerializer
-from dealership.filters import VehicleFilter
+from .models import Company, Vehicle, Type,User
+from .pagination import DefaultPagination
+from .serializers import CompanySerializer, TypeSerializer, UserSerializer, VehcileSerializer
+from .filters import VehicleFilter
 from rest_framework.decorators import api_view
 from django.db.models.functions import Cast
 from django.db.models import TextField
@@ -54,17 +54,17 @@ def user_list(request):
         except IntegrityError:
             return Response({'error': 'This vehicle is no longer available we are sorry.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-
 @api_view(['GET','PUT','DELETE'])
 def user_detail(request,pk):
     user = get_object_or_404(User.objects.all(),pk=pk)
+    # funkcija za zimanje id na vozilo kaj userot
     old_vehicles = list(User.objects.filter(pk=pk).annotate(str_id=Cast('vehicle', output_field=TextField())).values_list('str_id',flat=True))
     
     if request.method == "GET":
         serializer = UserSerializer(user)
         return Response(serializer.data)
     elif request.method == "PUT":
+
         for vehicle_id in request.data['vehicle']:
             
             if vehicle_id not in old_vehicles:
@@ -77,6 +77,12 @@ def user_detail(request,pk):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data,status=status.HTTP_200_OK)
+
     elif request.method == "DELETE":
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CompanyViewSet(ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
