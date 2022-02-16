@@ -12,6 +12,14 @@ class Company(models.Model):
     company_name = models.CharField(max_length=255)
     CEO = models.CharField(max_length=255)
     revenue = models.IntegerField(default=0)
+
+    def __str__(self) -> str:
+        return self.company_name
+
+    class Meta:
+
+        ordering = ['id']
+
 class Vehicle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
@@ -25,6 +33,9 @@ class Vehicle(models.Model):
     price = models.PositiveBigIntegerField()
     quantity = models.PositiveIntegerField()
 
+    class Meta:
+        
+        ordering = ['company']
     
     
 

@@ -1,4 +1,5 @@
 from gc import get_objects
+from msilib.schema import ODBCSourceAttribute
 from multiprocessing import get_context
 from pprint import pprint
 from typing import get_args
@@ -31,11 +32,18 @@ class TypeViewSet(ModelViewSet):
     serializer_class = TypeSerializer
 
 
+
+# class UserViewSet(ModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+
 @api_view(['GET','POST'])
 def user_list(request):
     if request.method == "GET":
         queryset = User.objects.prefetch_related('vehicle').all()
         serializer = UserSerializer(queryset,many=True)
+        
+        
         return Response(serializer.data)
     elif request.method == "POST":
 
@@ -43,6 +51,11 @@ def user_list(request):
             
             for vehicle_id in request.data['vehicle']:
                 vehicle = Vehicle.objects.get(id = vehicle_id)
+                company_id = vehicle.company_id
+                company = Company.objects.get(id = company_id)
+                company.revenue += vehicle.price
+                company.save()
+
                 vehicle.quantity -= 1
                 vehicle.save()
                
@@ -68,10 +81,15 @@ def user_detail(request,pk):
         for vehicle_id in request.data['vehicle']:
             
             if vehicle_id not in old_vehicles:
-
+                pprint(vehicle_id)
+                pprint(old_vehicles)
                 vehicle = Vehicle.objects.get(id = vehicle_id)
                 vehicle.quantity -= 1
                 vehicle.save()
+                company_id = vehicle.company_id
+                company = Company.objects.get(id = company_id)
+                company.revenue += vehicle.price
+                company.save()
 
         serializer = UserSerializer(user,data=request.data)
         serializer.is_valid(raise_exception=True)
