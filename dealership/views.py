@@ -137,7 +137,7 @@ def userservicevehicle_detail(request,pk):
         if userservicevehicle.payment_status == "C":
             userservicevehicle.service_status = "F"
         elif userservicevehicle.payment_status != "C":
-            UserServiceVehicle.objects.filter(service_status)
+            userservicevehicle.service_status = "X"
         return Response(serializer.data,status=status.HTTP_200_OK)
 
     
