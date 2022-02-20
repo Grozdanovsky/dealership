@@ -10,13 +10,15 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
-from .models import Company, Vehicle, Type,User
+from .models import Company, UserServiceVehicle, Vehicle, Type,User
 from .pagination import DefaultPagination
-from .serializers import CompanySerializer, TypeSerializer, UserSerializer, VehcileSerializer
+from .serializers import CompanySerializer, TypeSerializer, UserSerializer,  UserServiceVehicleSerializer, VehcileSerializer
 from .filters import VehicleFilter
 from rest_framework.decorators import api_view
 from django.db.models.functions import Cast
 from django.db.models import TextField
+
+from dealership import serializers
 
 class VehicleViewSet(ModelViewSet):
     queryset = Vehicle.objects.prefetch_related('type').all()
@@ -100,7 +102,48 @@ def user_detail(request,pk):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 class CompanyViewSet(ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+
+@api_view(['GET','POST'])
+def userservicevehicle_list(request):
+    if request.method == "GET":
+        queryset = UserServiceVehicle.objects.all()
+        serializer = UserServiceVehicleSerializer(queryset,many=True)
+        return Response(serializer.data)
+    
+    elif request.method == "POST":
+
+        serializer = UserServiceVehicleSerializer
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+
+@api_view(['GET','PUT'])
+def userservicevehicle_detail(request,pk):
+    
+    userservicevehicle = get_object_or_404(UserServiceVehicle.objects.all(),pk=pk)
+    if request.method == "GET":
+        serializer = UserServiceVehicleSerializer(userservicevehicle)
+        pprint(userservicevehicle.payment_status)
+        return Response(serializer.data)
+    
+    elif request.method == "PUT":
+
+        serializer = UserServiceVehicleSerializer(userservicevehicle,data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        if userservicevehicle.payment_status == "C":
+            userservicevehicle.service_status = "F"
+        elif userservicevehicle.payment_status != "C":
+            UserServiceVehicle.objects.filter(service_status)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
+    
+
+class UserServiceVehicleViewSet(ModelViewSet):
+
+
+    queryset = UserServiceVehicle.objects.all()
+    serializer_class = UserServiceVehicleSerializer

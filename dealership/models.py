@@ -8,6 +8,7 @@ class Type(models.Model):
     def __str__(self) -> str:
         return self.type
 
+
 class Company(models.Model):
     company_name = models.CharField(max_length=255)
     CEO = models.CharField(max_length=255)
@@ -20,19 +21,24 @@ class Company(models.Model):
 
         ordering = ['id']
 
+
 class Vehicle(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     type = models.ForeignKey(Type, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     manufacturer = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
-    horsepower = models.IntegerField()
-    cubic_meters = models.IntegerField()
+    horsepower = models.PositiveIntegerField()
+    cubic_meters = models.PositiveIntegerField()
     color = models.CharField(max_length=255)
     year = models.IntegerField()
     price = models.PositiveBigIntegerField()
     quantity = models.PositiveIntegerField()
+    service_cost = models.PositiveIntegerField()
 
+
+    def __str__(self) -> str:
+        return f'{self.manufacturer} {self.model}'
     class Meta:
         
         ordering = ['company']
@@ -45,5 +51,38 @@ class User(models.Model):
     email = models.EmailField()
     vehicle = models.ManyToManyField(Vehicle, blank=True)
 
+    def __str__(self) -> str:
+        return f'{self.first_name}  {self.last_name}'
 
+
+
+
+class UserServiceVehicle(models.Model):
+
+    PAYMENT_STATUS_PENDING = 'P'
+    PAYMENT_STATUS_COMPLETE = 'C'
+    PAYMENT_STATUS_FAILED = 'F'
+
+    PAYMENT_STATUS_CHOICES = [
+        (PAYMENT_STATUS_PENDING, 'Pending'),
+        (PAYMENT_STATUS_COMPLETE, 'Complete'),
+        (PAYMENT_STATUS_FAILED, 'Failed')
+    
+    ]
+
+    SERVICE_STATUS_FINISHED = 'F'
+    SERVICE_STATUS_UNFINISHED = 'X'
+
+    SERVICE_STATUS_CHOICES = [
+        
+        (SERVICE_STATUS_FINISHED, 'Finished'),
+        (SERVICE_STATUS_UNFINISHED, 'Unfinished')
+
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    placed_at = models.DateTimeField(auto_now_add=True)
+    payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
+    service_status = models.CharField(max_length=1, choices=SERVICE_STATUS_CHOICES, default = SERVICE_STATUS_UNFINISHED)
 

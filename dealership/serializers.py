@@ -34,3 +34,9 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = ['id','company_name','CEO','revenue']
 
     
+
+class UserServiceVehicleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserServiceVehicle
+        fields = ['id','user','vehicle','placed_at','payment_status','service_status']
