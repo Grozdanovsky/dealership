@@ -1,3 +1,4 @@
+from pprint import pprint
 from unicodedata import name
 from django.contrib import admin
 
@@ -18,9 +19,11 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(models.UserServiceVehicle)
 class UserServiceVehicle(admin.ModelAdmin):
     list_display = ['user','vehicle','placed_at','payment_status','service_status']
-    list_editable = ['payment_status']
+    list_editable = ['payment_status','service_status']
+    
     lists_per_page = 10
 
+    
 @admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ['company_name','CEO']
