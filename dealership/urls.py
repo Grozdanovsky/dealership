@@ -9,10 +9,10 @@ router.register('companies',views.CompanyViewSet)
 
 
 urlpatterns = [
-        path('user/',views.user_list),
-        path('user/<int:pk>/',views.user_detail),
-        path('user-service/',views.userservicevehicle_list),
-        path('user-service/<int:pk>/',views.userservicevehicle_detail),
+        path('user/',views.UserList.as_view()),
+        path('user/<int:pk>/',views.UserDetail.as_view()),
+        path('user-service/',views.UserServiceVehicleList.as_view()),
+        path('user-service/<int:pk>/',views.UserServiceVehicleDetail.as_view()),
         
 
 ]

@@ -1,8 +1,3 @@
-from gc import get_objects
-from msilib.schema import ODBCSourceAttribute
-from multiprocessing import get_context
-from pprint import pprint
-from typing import get_args
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.views import APIView
 from .models import Company, UserServiceVehicle, Vehicle, Type,User
 from .pagination import DefaultPagination
 from .serializers import CompanySerializer, TypeSerializer, UserSerializer,  UserServiceVehicleSerializer, VehcileSerializer
@@ -18,7 +14,7 @@ from rest_framework.decorators import api_view
 from django.db.models.functions import Cast
 from django.db.models import TextField
 
-from dealership import serializers
+
 
 class VehicleViewSet(ModelViewSet):
     queryset = Vehicle.objects.prefetch_related('type').all()
@@ -39,28 +35,25 @@ class TypeViewSet(ModelViewSet):
 #     queryset = User.objects.all()
 #     serializer_class = UserSerializer
 
-@api_view(['GET','POST'])
-def user_list(request):
-    if request.method == "GET":
+
+class UserList(APIView):
+    def get(self, request):
+
         queryset = User.objects.prefetch_related('vehicle').all()
         serializer = UserSerializer(queryset,many=True)
-        
-        
         return Response(serializer.data)
-    elif request.method == "POST":
+
+    def post(self,request):
 
         try:
-            
             for vehicle_id in request.data['vehicle']:
                 vehicle = Vehicle.objects.get(id = vehicle_id)
                 company_id = vehicle.company_id
                 company = Company.objects.get(id = company_id)
                 company.revenue += vehicle.price
                 company.save()
-
                 vehicle.quantity -= 1
                 vehicle.save()
-               
             serializer = UserSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -69,22 +62,21 @@ def user_list(request):
         except IntegrityError:
             return Response({'error': 'This vehicle is no longer available we are sorry.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-@api_view(['GET','PUT','DELETE'])
-def user_detail(request,pk):
-    user = get_object_or_404(User.objects.all(),pk=pk)
-    # funkcija za zimanje id na vozilo kaj userot
-    old_vehicles = list(User.objects.filter(pk=pk).annotate(str_id=Cast('vehicle', output_field=TextField())).values_list('str_id',flat=True))
-    
-    if request.method == "GET":
+
+class UserDetail(APIView):
+
+    def get(self,request,pk):
+        user = get_object_or_404(User.objects.all(),pk=pk)
         serializer = UserSerializer(user)
         return Response(serializer.data)
-    elif request.method == "PUT":
-
+    
+    def put(self,request,pk):
+        old_vehicles = list(User.objects.filter(pk=pk).annotate(str_id=Cast('vehicle', output_field=TextField())).values_list('str_id',flat=True))
+        user = get_object_or_404(User.objects.all(),pk=pk)
         for vehicle_id in request.data['vehicle']:
             
             if vehicle_id not in old_vehicles:
-                pprint(vehicle_id)
-                pprint(old_vehicles)
+                
                 vehicle = Vehicle.objects.get(id = vehicle_id)
                 vehicle.quantity -= 1
                 vehicle.save()
@@ -98,7 +90,8 @@ def user_detail(request,pk):
         serializer.save()
         return Response(serializer.data,status=status.HTTP_200_OK)
 
-    elif request.method == "DELETE":
+    def delete(self,pk):
+        user = get_object_or_404(User.objects.all(),pk=pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -106,31 +99,33 @@ class CompanyViewSet(ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
 
-@api_view(['GET','POST'])
-def userservicevehicle_list(request):
-    if request.method == "GET":
+
+
+class UserServiceVehicleList(APIView):
+
+    def get(self,request):
         queryset = UserServiceVehicle.objects.all()
         serializer = UserServiceVehicleSerializer(queryset,many=True)
         return Response(serializer.data)
     
-    elif request.method == "POST":
-
+    def post(self,request):
         serializer = UserServiceVehicleSerializer
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data,status=status.HTTP_201_CREATED)
 
-@api_view(['GET','PUT'])
-def userservicevehicle_detail(request,pk):
-    
-    userservicevehicle = get_object_or_404(UserServiceVehicle.objects.all(),pk=pk)
-    if request.method == "GET":
+
+
+class UserServiceVehicleDetail(APIView):
+
+    def get(self,request,pk):
+        userservicevehicle = get_object_or_404(UserServiceVehicle.objects.all(),pk=pk)
         serializer = UserServiceVehicleSerializer(userservicevehicle)
-        pprint(userservicevehicle.payment_status)
         return Response(serializer.data)
     
-    elif request.method == "PUT":
 
+    def put(self,request,pk):
+        userservicevehicle = get_object_or_404(UserServiceVehicle.objects.all(),pk=pk)
         serializer = UserServiceVehicleSerializer(userservicevehicle,data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -140,7 +135,10 @@ def userservicevehicle_detail(request,pk):
             userservicevehicle.service_status = "X"
         return Response(serializer.data,status=status.HTTP_200_OK)
 
-    
+    def delete(self,request,pk):
+        userservicevehicle = get_object_or_404(UserServiceVehicle.objects.all(),pk=pk)
+        userservicevehicle.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class UserServiceVehicleViewSet(ModelViewSet):
 
