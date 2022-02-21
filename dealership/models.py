@@ -1,3 +1,4 @@
+from tabnanny import verbose
 from django.db import models
 from uuid import uuid4
 # Create your models here.
@@ -19,7 +20,8 @@ class Company(models.Model):
 
     class Meta:
 
-        ordering = ['id']
+        ordering = ['company_name']
+        verbose_name_plural = ('Companies')
 
 
 class Vehicle(models.Model):
@@ -85,4 +87,7 @@ class UserServiceVehicle(models.Model):
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     service_status = models.CharField(max_length=1, choices=SERVICE_STATUS_CHOICES, default = SERVICE_STATUS_UNFINISHED)
+
+    def __str__(self) -> str:
+        return f"{self.user} {self.vehicle}"
 
