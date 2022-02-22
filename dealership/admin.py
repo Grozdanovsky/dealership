@@ -18,9 +18,9 @@ class RevenueFilter(admin.SimpleListFilter):
     
     def queryset(self, request, queryset):
         if self.value() == '<500000':
-            queryset.filter(revenue__lt = 500000)
-        elif self.value() == '>500000':
-            queryset.filter(revenue__gt = 500000)
+            return queryset.filter(revenue__lt = 500000)
+        if self.value() == '>500000':
+            return queryset.filter(revenue__gt = 500000)
 
 
 @admin.register(models.Vehicle)
