@@ -2,10 +2,6 @@ from pprint import pprint
 from unicodedata import name
 from django.contrib import admin
 from . import models
-
-
-
-
 class RevenueFilter(admin.SimpleListFilter):
     title = 'Revenue'
     parameter_name = 'Revenue'
@@ -46,6 +42,7 @@ class UserServiceVehicle(admin.ModelAdmin):
     lists_per_page = 10
 @admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
+    exclude = ['revenue']
     list_display = ['company_name','CEO']
     list_editable = ['CEO']
     list_filter = [RevenueFilter]
