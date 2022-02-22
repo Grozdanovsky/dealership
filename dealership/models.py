@@ -1,5 +1,5 @@
-from tabnanny import verbose
 from django.db import models
+from django.core.validators import MinValueValidator
 from uuid import uuid4
 # Create your models here.
 
@@ -30,13 +30,13 @@ class Vehicle(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     manufacturer = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
-    horsepower = models.PositiveIntegerField()
-    cubic_meters = models.PositiveIntegerField()
+    horsepower = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    cubic_meters = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     color = models.CharField(max_length=255)
     year = models.IntegerField()
-    price = models.PositiveBigIntegerField()
-    quantity = models.PositiveIntegerField()
-    service_cost = models.PositiveIntegerField()
+    price = models.PositiveBigIntegerField(validators=[MinValueValidator(1)])
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    service_cost = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
 
     def __str__(self) -> str:
