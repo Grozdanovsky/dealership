@@ -21,6 +21,7 @@ class RevenueFilter(admin.SimpleListFilter):
 
 @admin.register(models.Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['company']
     list_display = ['type','manufacturer','model','horsepower','cubic_meters','year','price','quantity']
     list_editable = ['price','quantity']
     search_fields = ['manufacturer__istartswith'] 
@@ -28,6 +29,7 @@ class VehicleAdmin(admin.ModelAdmin):
     lists_per_page = 10
 @admin.register(models.User)
 class UserAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['vehicle']
     list_display = ['first_name','last_name','email']
     list_editable = ['email']
     ordering = ['first_name','last_name']
@@ -36,6 +38,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(models.UserServiceVehicle)
 class UserServiceVehicle(admin.ModelAdmin):
+    autocomplete_fields = ['user','vehicle']
     list_display = ['user','vehicle','placed_at','payment_status','service_status']
     list_editable = ['payment_status','service_status']
     list_filter = ['payment_status','service_status','placed_at']
@@ -46,6 +49,7 @@ class CompanyAdmin(admin.ModelAdmin):
     list_display = ['company_name','CEO']
     list_editable = ['CEO']
     list_filter = [RevenueFilter]
+    search_fields = ['company_name'] # this is so that i can make autocomplete field in VehicleAdmin class becouse it is a related field.
 
 admin.site.register(models.Type)
 
