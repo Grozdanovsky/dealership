@@ -1,14 +1,34 @@
 from pprint import pprint
 from unicodedata import name
 from django.contrib import admin
-
 from . import models
+
+
+
+
+class RevenueFilter(admin.SimpleListFilter):
+    title = 'Revenue'
+    parameter_name = 'Revenue'
+
+    def lookups(self, request, model_admin):
+         return [
+             ('<500000' ,'Less than $500,000'),
+             ('>500000' , 'More than $500,000')
+         ]
+    
+    def queryset(self, request, queryset):
+        if self.value() == '<500000':
+            queryset.filter(revenue__lt = 500000)
+        elif self.value() == '>500000':
+            queryset.filter(revenue__gt = 500000)
+
 
 @admin.register(models.Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
     list_display = ['type','manufacturer','model','horsepower','cubic_meters','year','price','quantity']
     list_editable = ['price','quantity']
     search_fields = ['manufacturer__istartswith'] 
+    list_filter = ['manufacturer']
     lists_per_page = 10
 @admin.register(models.User)
 class UserAdmin(admin.ModelAdmin):
@@ -22,11 +42,13 @@ class UserAdmin(admin.ModelAdmin):
 class UserServiceVehicle(admin.ModelAdmin):
     list_display = ['user','vehicle','placed_at','payment_status','service_status']
     list_editable = ['payment_status','service_status']
+    list_filter = ['payment_status','service_status','placed_at']
     lists_per_page = 10
 @admin.register(models.Company)
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ['company_name','CEO']
     list_editable = ['CEO']
+    list_filter = [RevenueFilter]
 
 admin.site.register(models.Type)
 
