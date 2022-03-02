@@ -2,6 +2,7 @@ from pprint import pprint
 from unicodedata import name
 from django.contrib import admin
 from . import models
+
 class RevenueFilter(admin.SimpleListFilter):
     title = 'Revenue'
     parameter_name = 'Revenue'

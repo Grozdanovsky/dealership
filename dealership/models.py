@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from uuid import uuid4
 # Create your models here.
@@ -91,3 +92,7 @@ class UserServiceVehicle(models.Model):
     def __str__(self) -> str:
         return f"{self.user} {self.vehicle}"
 
+
+
+class AUser(AbstractUser):
+    email = models.EmailField(unique=True)
